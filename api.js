@@ -52,7 +52,7 @@ const movies = [
 ];
 
 app.get('/api/movies', (req, res) => {
-  res.status(200).json(movies.map(({ id, title, director, metascore }) => ({ id, title, director, metascore })));
+  res.status(200).json(movies.map(({ id, title, director, metascore, stars }) => ({ id, title, director, metascore, stars })));
 });
 
 app.get('/api/movies/:id', (req, res) => {

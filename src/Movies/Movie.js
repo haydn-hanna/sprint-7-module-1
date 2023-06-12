@@ -1,28 +1,28 @@
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 export default function Movie(props) {
+  const navigate = useNavigate()
   const [movie, setMovie] = useState();
 
-  let id = 1;
-  // Change ^^^ that line and use a hook to obtain the :id parameter from the URL
+  let {id} = useParams()
 
   useEffect(() => {
-    axios
-      .get(`http://localhost:5001/api/movies/${id}`) // Study this endpoint with Postman
-      .then(response => {
-        // Study this response with a breakpoint or log statements
-        // and set the response data as the 'movie' slice of state
-      })
-      .catch(error => {
-        console.error(error);
-      });
-    // This effect should run every time time
-    // the `id` changes... How could we do this?
+    if(props.movie){
+      setMovie(props.movie)
+    }else{
+      axios
+        .get(`http://localhost:5001/api/movies/${id}`) // Study this endpoint with Postman
+        .then(res => {
+          setMovie(res.data)
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    }
   }, []);
-
-  // Uncomment this only when you have moved on to the stretch goals
-  // const saveMovie = evt => { }
 
   if (!movie) {
     return <div>Loading movie information...</div>;
@@ -32,7 +32,7 @@ export default function Movie(props) {
 
   return (
     <div className="save-wrapper">
-      <div className="movie-card">
+      <div onClick={()=>navigate(`/movies/${movie.id}`)} className="movie-card">
         <h2>{title}</h2>
         <div className="movie-director">
           Director: <em>{director}</em>
@@ -40,15 +40,18 @@ export default function Movie(props) {
         <div className="movie-metascore">
           Metascore: <strong>{metascore}</strong>
         </div>
-        <h3>Actors</h3>
 
-        {stars.map(star => (
-          <div key={star} className="movie-star">
-            {star}
-          </div>
-        ))}
+        {!props.movie && <h3>Actors</h3>}
+        {!props.movie
+          ?stars.map(star => (
+            <div key={star} className="movie-star">
+              {star}
+            </div>
+          ))
+          :null
+        }
       </div>
-      <div className="save-button">Save</div>
+      <div onClick={()=>props.addToSavedList(movie)} className="save-button">Save</div>
     </div>
   );
 }
